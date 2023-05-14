@@ -6,7 +6,7 @@ import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
 contract YulAirdrop {
     
     function airdropERC20(
-        address _token,
+        IERC20 _token,
         address[] calldata _recipients,
         uint256[] calldata _amounts,
         uint256 _total
