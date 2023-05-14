@@ -1,0 +1,114 @@
+
+#define function airdropERC20(address[],uint256[],address,uint256) nonpayable returns()
+
+
+
+#define macro AIRDROP_ERC20() = takes(0) returns(0) {
+
+    //TransferFrom
+    0x23b872dd  //[selector]
+    0x0 mstore //mstore(0x0,transferFrom function selector)
+    caller //[msg.sender]
+    0x20 mstore //mstore(0x20,msg.sender) []
+    address     //[address(this)] 
+    0x40 mstore // mstore(0x40,address(this)) []
+    0x64 calldataload //[total]
+    0x60 mstore //[] //mstore(0x60,total) []
+    0x0 0x0  //[retOffset,retSize]
+    0x64 0x1c   //[memOffset,memsize,retOffset,retsize]
+    0x0         //[value,memOffset,memsize,retOffset,retsize]
+    0x44 calldataload //[address,value,memOffset,memsize,retOffset,retsize]
+    gas     //[gas,a,v,memOffset,memsize,retOffset,retsize]
+    call  //[success]
+    iszero    //[isFailure?]
+    gtfo jumpi // if is failure gtfo, stack should be empty now
+    //End Transfer From
+
+    0xa9059cbb //[transfer(address,uint256) function selector, length of proof_arr]
+    0x0         //[0x0,transfer(address,uint256) function selector, length of proof_arr]
+    mstore      //[length of proof_arr]
+
+    
+    0x04               // [0x04]
+    calldataload       // [arr0 offset]
+    0x04
+    add                // [start of calldata + offset = ptr to arr 0]
+    calldataload       // [length of arr0]
+
+
+    0x0      //[index 0,length of proof_arr] *initialize a counter :)
+    start jump
+
+
+    
+    loop:
+        eq end jumpi //[index===length,index+1,length]
+       start:
+       0x1 add
+        dup1                //[index, index, length of proof_arr]
+        0x04                //[0x04, index, index, length of proof_arr]
+        calldataload   //   [ptr to arr0, index, index, length of proof_arr]
+        swap1               //[index, ptr to arr0, index,length]
+        0x20             //[0x20,index, ptr to arr0, index, length]
+        mul             //[0x20 * index, ptr to arr 0 ,index, length]
+        0x04 
+        add             //full offset = 0x20*index + 0x04
+        swap1          //[ptr to arr0, arr offset, index, length]
+        dup2          //[arr offset , ptr to arr0, arr offset, index, length]
+        add         //[ptr to index, arr offset, index, length] 
+        calldataload    //[arr0[index],arr offset,index,length]
+        0x20 mstore     //[arr offset index,length]
+        0x24 calldataload
+        add
+        calldataload
+        0x40 mstore
+
+
+        
+
+
+        // //(g,a,v,mem offset start,memsize,return offset,return size)
+        0x0  //return size [0x0,index+1,length]
+        0x0 //return start mempos // [0x0,0x0,index+1,length]
+        0x44    //arg size  // [0x44,0x0,0x0,index+1,length]
+        0x1c        //arg offset // [0x1c,0x44,0x0,0x0,index+1,length]
+        0x0     //value  // [0x0,0x1c,0x44,0x0,0x0,index+1,length]
+        0x44 calldataload    //[address,0x0,0x1c,0x44,0x0,0x0,index+1,length]
+        gas                 //[gas,address,0x0,0x1c,0x44,0x0,0x0,index+1,length]
+        call //[success, index+1,length,index+1,lnegth]
+        iszero //[isSuccess, index+1,length]
+        gtfo
+        jumpi
+        // //Increase index by 1
+        dup2         //[length,index+1,length]
+        dup2       //[index+1,length,index+1,length]
+        
+        loop jump
+
+
+    end:
+    0x0
+    0x0
+    return
+
+    gtfo:
+        0x00 0x00 revert
+
+}
+
+
+#define macro MAIN() = takes (0) returns (0) {
+    // Identify which function is being called.
+    0x00 calldataload 0xE0 shr
+    dup1 __FUNC_SIG(airdropERC20) eq airdrop jumpi
+
+    // 0x00 0x00 revert
+
+    airdrop:
+        AIRDROP_ERC20()
+
+    
+
+
+}
+

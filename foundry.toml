@@ -9,4 +9,6 @@ fuzz_runs = 1_000
 remappings = [
   "forge-std=lib/forge-std/src/",
   "foundry-huff=lib/foundry-huff/src/",
+  "erc721a/=lib/erc721a/",
+  "@openzeppelin/=lib/openzeppelin-contracts/contracts/"
 ]
